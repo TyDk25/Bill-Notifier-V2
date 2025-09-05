@@ -1,21 +1,22 @@
+import os
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from datetime import datetime, timedelta
 from text_message import send_message
+from dotenv import load_dotenv
+load_dotenv()
 
-uri = "mongodb+srv://tyronecoding25_db_user:WI93k9SqvWfTPdqM@billsnotifier.yc64vuj.mongodb.net/?retryWrites=true&w=majority&appName=BillsNotifier"
+mongo_uri = os.environ.get('URI')
+client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+in_advance = (datetime.today() + timedelta(days=1)).day
 
-# Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi('1'))
-in_advance = (datetime.today() + timedelta(days=4)).day
-# Send a ping to confirm a successful connection
 try:
     db = client["MyBillsDatabase"]
     collection = db["BillsData"]
 except Exception as e:
     print(e) 
 
-def get_bills():
+def get_bills() -> str:
     
     bills_due = collection.find({"Bill_Date": in_advance})
 
@@ -32,4 +33,5 @@ def get_bills():
         return message
 
 
-get_bills()
+if __name__ == "__main__":
+    get_bills()
